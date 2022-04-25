@@ -47,9 +47,11 @@ Netflix üzerindeki film listesi, anlık olarak Parse Edilerek ekrana, kategori 
 		isFive, err := cmd.Flags().GetBool("five")
 
 		category, err := cmd.Flags().GetInt("category")
+		//Girilen category -c flagi yanlış ise, default 1 atanır.
 		if err != nil || (!isFive && category > 5) || (isFive && category > 3) || category < 1 {
 			category = core.NetflixCategory.IlkUc
 		}
+		//Girilen rowcount 10'dan büyük ise default 5 atanır.
 		rowcount, err := cmd.Flags().GetInt("rowcount")
 		if err != nil || rowcount > 10 {
 			rowcount = 5
@@ -76,6 +78,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
+	//Komutla girilecek flagler burada tanımlanır. Ve Default değeri atanır.
 	rootCmd.Flags().BoolP("five", "f", false, "Kategori sayısı 3 yerine => 5 kabul edilir.")
 	rootCmd.Flags().IntP("category", "c", core.NetflixCategory.IlkUc, "Netflix'den çekilecek Kategori Grubu: '-f'(5li grup) var ise 1 ile 3 yok is 1 ile 5 arasında")
 	rootCmd.Flags().IntP("rowcount", "r", 5, "Kategori bazlı toplam çekilecek film sayısı. 1 ile 10 arasında")
@@ -86,22 +89,27 @@ func getMovieByCategory(categoryID int, rowCount int, isFive bool) {
 
 	categories := make([]string, 0)
 	movieList := make([][]string, 0)
-	keys := core.SortedKeys(moveData) //range moveData => We will sort categorys by their keys(names)
+	//Çekilen filmlerin isimleri sıralanır.
+	//range of moveData sürekl başka sıradan başlıyordu..
+	keys := core.SortedKeys(moveData, isFive) //range moveData => We will sort categorys by their keys(names)
 
+	//Her bir film dizisi sıra ile dönülür. Yani => Tüm kategorilerden 0. filim çekilir.Sonra tüm kategorilerden 1.film çekilir.
 	for i := 0; i < rowCount; i++ {
 		movieLine := make([]string, 0)
-		//for category, title := range moveData {
+		//for category, title := range moveData { //Her seferinde farklı bir kategori geliyordu.
+		//Tüm kategorilerin 0.,1.,2.,... filminin çekilmesi için loop'a girilir
 		for _, category := range keys { //We will loop categories by theirs sorted names for every rowCount(moview)
-			categories = core.UniqueAppend(categories, category)
+			categories = core.UniqueAppend(categories, category) //Table'ın Header'ına kategory ismi gelmesi için Unique olarak eklenir.
+			//moveData[category] ile sıralı "category" ismine göre aynı sıradaki kategori bilgisi(filimleri) çekildi.
 			for titleIndex, item := range moveData[category] { //Loop int Category by its sorted key(Name)
-				if i == titleIndex {
+				if i == titleIndex { //Eğer istenen sıradaki filme, o Kategori için gelinmiş ise ""movieLine listesine eklenir.
 					movieLine = append(movieLine, item)
 				} else if titleIndex > i {
-					break
+					break //Performans amaçlı o katagori için istenen index geçilmiş ise, o kategory için film loopından çıkılır.
 				}
 			}
 		}
-		movieList = append(movieList, movieLine)
+		movieList = append(movieList, movieLine) //0.,1.,2.,... sıradaki filimleri tüm kategoriler için çekilip listeye eklendi. Örn: 3 sıradaki filimler, tüm kategoriler için seçilip listeye eklenecek.
 	}
 	//Create Header of Table
 	table := tablewriter.NewWriter(os.Stdout)
@@ -110,7 +118,7 @@ func getMovieByCategory(categoryID int, rowCount int, isFive bool) {
 	//Set Table Title
 	table.SetCaption(true, "Netflix'de Kategori Bazlı Top "+strconv.Itoa(rowCount)+" Film\n ®coderbora => www.borakasmer.com")
 	table.AppendBulk(movieList)
-	if !isWindows() {
+	if !isWindows() { //Windows için Renkli Tablo başlıkları gözükmüyor...
 		if !isFive {
 			table.SetHeaderColor(tablewriter.Colors{
 				tablewriter.Bold, tablewriter.BgMagentaColor},
