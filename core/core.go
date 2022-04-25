@@ -1,6 +1,9 @@
 package core
 
-import "sort"
+import (
+	"sort"
+	"strings"
+)
 
 func UniqueAppend(slice []string, value string) []string {
 	for _, ele := range slice {
@@ -11,7 +14,7 @@ func UniqueAppend(slice []string, value string) []string {
 	return append(slice, value)
 }
 
-func SortedKeys(m map[string][]string) []string {
+func SortedKeys(m map[string][]string, isFive bool) []string {
 	keys := make([]string, len(m))
 	i := 0
 	for k := range m {
@@ -19,6 +22,14 @@ func SortedKeys(m map[string][]string) []string {
 		i++
 	}
 	sort.Strings(keys)
+	index := strings.Index(keys[0], "-")
+	if index > 0 && isFive {
+		var key = keys[0]
+		var number = key[:(index)]
+		if number == "10" {
+			keys = append(keys[1:], keys[0])
+		}
+	}
 	return keys
 }
 
