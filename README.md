@@ -1,5 +1,5 @@
 # netflix
-With this CLI Tool, Netflix movie list information is instantly retrieved by category group. Movi List information is printed on the screen by Parse instantly from Netflix.com. You can Get Category Group, Movi Count and "Category Group of 5" with "-c 3, -r 6, -f" flags.<br><br>
+With this CLI Tool, Netflix movie list information is instantly retrieved by category group. Movie List information is printed on the screen by Parse instantly from Netflix.com. You can Get Category Group, Movie Count and "Category Group of 5" with "-c 3, -r 6, -f" flags.<br><br>
 &#x1F34E;<I>This is Netflix crawler CLI. In every request, It parses Netflix.com. If Netflix.com doesn't response, this service can't work.</I>
 
 ![NetflixGithub](https://user-images.githubusercontent.com/9459881/165043647-7e6bad74-623d-405e-8f36-676dd32caf58.png)<br>
